@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
@@ -8,15 +9,39 @@ namespace WindowsFormsApp1
         static int sizeMatrix;
         public Form1()
         {
+
             InitializeComponent();
+            MessageBox.Show(
+                        "Найти определитель матрицы методом Гаусса",
+                        "Сообщение",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information,
+                        MessageBoxDefaultButton.Button1,
+                        MessageBoxOptions.DefaultDesktopOnly);
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            sizeMatrix = Convert.ToInt32(textBox1.Text);
+            if (Convert.ToInt32(textBox1.Text)>=2)
+            {
+sizeMatrix = Convert.ToInt32(textBox1.Text);
             dataGridView1.ColumnCount = sizeMatrix;
             dataGridView1.RowCount = sizeMatrix;
             dataGridView1.AutoResizeColumns();
+            }
+            else
+            {
+                
+                    MessageBox.Show(
+                        "Вы ввели размерность меньше 2",
+                        "Сообщение",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information,
+                        MessageBoxDefaultButton.Button1,
+                        MessageBoxOptions.DefaultDesktopOnly);
+                
+            }
+            
 
         }
 
@@ -37,40 +62,35 @@ namespace WindowsFormsApp1
         static public double GetDeterminant(double[,] matrix)
         {
 
-            double det=1;
-            int RowAm = sizeMatrix;
-            double[,] MatrixCoef = new double[RowAm, RowAm];
-            double Multi1, Multi2;
+            int i, j, p, k = 0;
+
+
+            double det = 1;
             
-
-            for (int i = 0; i < RowAm; i++)
+            //подсчет методом гаусса 
+            for (p = 0; p < sizeMatrix; p++)
             {
-                for (int j = 0; j < RowAm; j++)
+                for (j = p + 1; j < sizeMatrix; j++) //цикл по строкам 
                 {
-                    MatrixCoef[i, j] = matrix[i, j];
-                }
-
-            }
-
-
-            for (int k = 0; k < RowAm; k++)
-            {
-                for (int j = k + 1; j < RowAm; j++)
-                {
-                    Multi1 = MatrixCoef[j, k] / MatrixCoef[k, k];
-                    for (int i = k; i < RowAm; i++)
+                    double Mult = matrix[j, p] / matrix[p, p];
+                    for (i = p; i < sizeMatrix; i++) //цикл по столбцам 
                     {
-                        MatrixCoef[j, i] = MatrixCoef[j, i] - Multi1 * MatrixCoef[k, i];
+                        matrix[j, i] = matrix[j, i] - Mult * matrix[p, i];
                     }
                 }
             }
-            for (int i = 0; i < RowAm; i++)
-            {
-                det *= MatrixCoef[i, i];
 
+            for (p = 0; p < sizeMatrix; p++)
+            {
+                for (j = p + 1; j < sizeMatrix; j++) //цикл по строкам 
+                {
+                    p++;
+                    det = det * matrix[j, p];
+                }
             }
-            
-            
+            det *= matrix[0, 0]; //нахождение определителя 
+
+          
             return det;
         }
 
@@ -87,7 +107,48 @@ namespace WindowsFormsApp1
             }
         }
 
+        private void tb(object sender, KeyPressEventArgs e)
+        {
+            char number = e.KeyChar;
+            if (!Char.IsDigit(number) && number != 8) // цифры и клавиша BackSpace
+            {
+                e.Handled = true;
+            }
+        }
 
+        private void fff(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+
+            const string disallowed = @"[^0-9-]";
+            var newText = Regex.Replace(e.FormattedValue.ToString(), disallowed, string.Empty);
+            dataGridView1.Rows[e.RowIndex].ErrorText = "";
+            if (dataGridView1.Rows[e.RowIndex].IsNewRow) return;
+            if (string.CompareOrdinal(e.FormattedValue.ToString(), newText) == 0) return;
+            e.Cancel = true;
+            dataGridView1.Rows[e.RowIndex].ErrorText = "Некорректный символ!";
+
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            textBox1.Text = "0";
+            sizeMatrix = Convert.ToInt32(textBox1.Text);
+            dataGridView1.ColumnCount = sizeMatrix;
+            dataGridView1.RowCount = sizeMatrix;
+            dataGridView1.AutoResizeColumns();
+            textBox1.Text = "";
+            textBox2.Text = "";
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 
 }
